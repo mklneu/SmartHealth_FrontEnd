@@ -58,9 +58,9 @@ const AddDoctorModal = (props: IAddModalProps) => {
     if (show) {
       const fetchHospitals = async () => {
         try {
-          const res = await getAllHospitals(); // API lấy list bệnh viện
+          const res = await getAllHospitals({ size: 1000 }); // API lấy list bệnh viện
           // Giả sử res trả về mảng [{id, name}, ...]
-          const options = res.map((h: Hospital) => ({
+          const options = res.data.map((h: Hospital) => ({
             label: h.name,
             value: h.id,
           }));

@@ -30,8 +30,8 @@ export interface Medicine extends MedicineBody {
 }
 
 interface MedicineQueryParams {
-  page: number;
-  size: number;
+  page?: number;
+  size?: number;
   sort?: string;
   search?: string;
 }
@@ -64,8 +64,8 @@ const getAllMedicines = async (
   try {
     // 1. Chuẩn bị các tham số cơ bản
     const apiParams: Record<string, string | number> = {
-      page: params.page,
-      size: params.size,
+      page: params.page || 1,
+      size: params.size || 10,
     };
 
     if (params.sort) {
@@ -107,7 +107,7 @@ const getAllMedicines = async (
 
     // Trả về cấu trúc rỗng để tránh crash UI
     return {
-      meta: { page: 1, pageSize: params.size, pages: 0, total: 0 },
+      meta: { page: 1, pageSize: params.size || 10, pages: 0, total: 0 },
       data: [],
     };
   }

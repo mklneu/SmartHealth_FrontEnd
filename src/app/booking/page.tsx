@@ -80,8 +80,8 @@ export default function BookingPage() {
   useEffect(() => {
     const fetchHospitals = async () => {
       try {
-        const res = await getAllHospitals();
-        setHospitals(res);
+        const res = await getAllHospitals({ size: 1000 });
+        setHospitals(res.data);
       } catch {
         toast.error("Không thể tải danh sách bệnh viện.");
       }
@@ -190,9 +190,10 @@ export default function BookingPage() {
       router.push("/profile/appointments");
     } catch (error) {
       const err = error as AxiosError<ErrorResponse>;
-      console.error("❌ Error in booking appointment:", err);
+      console.log("❌ Error in booking appointment:", err.response?.data);
       toast.error(
-        err.response?.data?.error || "Đặt lịch thất bại, vui lòng thử lại."
+        err.response?.data?.error ||
+          "Suất khám này đã được đặt hoặc không còn trống. Vui lòng chọn suất khám khác."
       );
     } finally {
       setLoading(false);
@@ -226,7 +227,11 @@ export default function BookingPage() {
               <label className="block font-semibold mb-2 text-gray-700">
                 Bệnh nhân
               </label>
-              <InputBar type="text" value={patientProfile?.fullName || ""} disabled />
+              <InputBar
+                type="text"
+                value={patientProfile?.fullName || ""}
+                disabled
+              />
             </div>
             <div>
               <label

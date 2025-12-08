@@ -105,3 +105,9 @@ type TestResultStatus =
   | "CANCELLED";
 
 type Gender = "MALE" | "FEMALE" | "OTHER";
+
+// Định dạng option cho react-select
+export interface SelectOption {
+  value: number | string;
+  label: string;
+}

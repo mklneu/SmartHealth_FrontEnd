@@ -7,14 +7,15 @@ import { IoMdTrendingUp, IoMdTrendingDown } from "react-icons/io";
 import { BiDollar } from "react-icons/bi";
 import { Chart, registerables } from "chart.js";
 import { Pie, Bar, Line } from "react-chartjs-2";
-import { resUser } from "@/types/frontend";
 import { getOverviewStatistics, Overview } from "@/services/StatisticServices";
 import { getAllPatients, PatientQueryParams } from "@/services/PatientServices";
+import { UserProfile } from "@/services/UserServices";
+import Link from "next/link";
 
 Chart.register(...registerables);
 
 const Dashboard = () => {
-  const [users, setUsers] = useState<resUser[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [overview, setOverview] = useState<Overview>();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState("week");
@@ -455,9 +456,9 @@ const Dashboard = () => {
               <h2 className="text-lg font-bold text-gray-800">
                 Lịch hẹn gần đây
               </h2>
-              <a href="/admin/appointments" className="text-blue-600 text-sm hover:underline">
+              <Link href="/admin/appointments" className="text-blue-600 text-sm hover:underline">
                 Xem tất cả
-              </a>
+              </Link>
             </div>
             <div className="space-y-4">
               {recentAppointments.map((appointment) => (

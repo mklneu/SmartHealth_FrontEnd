@@ -12,7 +12,7 @@ import {
   PrescriptionItemBody,
 } from "@/services/PrescriptionServices";
 // 1. Import service và type của Medicine
-import { getMedicines, Medicine } from "@/services/MedicineServices";
+import { getAllMedicines, Medicine } from "@/services/MedicineServices";
 import { useDebounce } from "@/hooks/useDebounce";
 import { AxiosError } from "axios";
 import { getAppointmentById } from "@/services/AppointmentServices";
@@ -109,7 +109,7 @@ const CreatePrescriptionPage = () => {
     if (debouncedSearchTerm) {
       const fetchMedicines = async () => {
         try {
-          const results = await getMedicines(debouncedSearchTerm);
+          const results = await getAllMedicines({search: debouncedSearchTerm});
           setMedicineSearchResults(results?.data || []);
           console.log(">>>>>>>>>", results);
         } catch (error) {

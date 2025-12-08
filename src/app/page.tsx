@@ -13,7 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { getAllPatients } from "@/services/PatientServices";
 import Button from "@/components/Button";
-import { resUser } from "@/types/frontend";
+import { UserProfile } from "@/services/UserServices";
 
 interface StatCardProps {
   title: string;
@@ -66,7 +66,7 @@ const FeatureCard = ({
 };
 
 export default function Home() {
-  const [userData, setUserData] = useState<resUser[]>([]);
+  const [userData, setUserData] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { isLoggedIn, userRole } = useAuth();
 
@@ -96,7 +96,7 @@ export default function Home() {
             try {
                 const params = {
                     page: 1,
-                    size: 1000,
+                    size: 10,
                     searchTerm: "",
                     filterGender: "ALL",
                     role: "ALL",

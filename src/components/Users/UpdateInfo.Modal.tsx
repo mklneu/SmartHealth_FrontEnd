@@ -115,8 +115,8 @@ const UpdateInfoModal = ({
 
           try {
             // Chỉ cần tải danh sách bệnh viện ở đây
-            const hospitalOpts = await getAllHospitals();
-            setHospitalOptions(hospitalOpts);
+            const hospitalOpts = await getAllHospitals({size: 1000});
+            setHospitalOptions(hospitalOpts.data);
           } catch (error) {
             console.error("Không thể tải danh sách bệnh viện:", error);
           }
@@ -129,8 +129,8 @@ const UpdateInfoModal = ({
           };
           try {
             // Chỉ cần tải danh sách bệnh viện ở đây
-            const hospitalOpts = await getAllHospitals();
-            setHospitalOptions(hospitalOpts);
+            const hospitalOpts = await getAllHospitals({size: 1000});
+            setHospitalOptions(hospitalOpts.data);
           } catch (error) {
             console.error("Không thể tải danh sách bệnh viện:", error);
           }

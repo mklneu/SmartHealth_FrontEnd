@@ -1,8 +1,7 @@
 import { toast } from "react-toastify";
 import axiosInstance from "./axiosInstance";
-import Button from "@/components/Button";
 import { AxiosError } from "axios";
-import { ErrorResponse } from "@/types/frontend";
+import { ErrorResponse, PaginatedResponse } from "@/types/frontend";
 
 export interface Hospital {
   id: number;
@@ -12,7 +11,7 @@ export interface Hospital {
   address: string;
   logo: string;
   description: string;
-  specialty: Specialty[];
+  specialties: Specialty[];
 }
 
 interface Specialty {
@@ -21,14 +20,76 @@ interface Specialty {
   description: string;
 }
 
+export interface HospitalRequest {
+  name: string;
+  address: string;
+  description: string;
+  logo?: string;
+  specialtyIds: number[]; // Mảng ID chuyên khoa
+  contactPhone?: string; // Giữ lại nếu cần
+  contactEmail?: string; // Giữ lại nếu cần
+}
+
+// 3. Định nghĩa Interface cho Query Params
+interface HospitalQueryParams {
+  page?: number;
+  size?: number;
+  sort?: string;
+  search?: string;
+}
+
 // Lấy tất cả bệnh viện
-const getAllHospitals = async () => {
+const getAllHospitals = async (
+  params: HospitalQueryParams
+): Promise<PaginatedResponse<Hospital>> => {
   try {
-    const response = await axiosInstance.get("/hospitals");
-    return response.data.data.data || [];
+    // Chuẩn bị tham số cơ bản
+    const apiParams: Record<string, string | number> = {
+      page: params.page || 1,
+      size: params.size || 10,
+    };
+
+    if (params.sort) {
+      apiParams.sort = params.sort;
+    }
+
+    // Xây dựng chuỗi filter RSQL
+    const filterParts: string[] = [];
+
+    // Logic tìm kiếm: Tìm theo Tên OR Địa chỉ OR Email
+    if (params.search && params.search.trim() !== "") {
+      const safeSearchTerm = params.search.trim().replace(/'/g, "''");
+      filterParts.push(
+        `(name~'${safeSearchTerm}' or address~'${safeSearchTerm}')`
+      );
+    }
+
+    // Nối filter nếu có
+    if (filterParts.length > 0) {
+      apiParams.filter = filterParts.join(" and ");
+    }
+
+    // Gọi API
+    const response = await axiosInstance.get("/hospitals", {
+      params: apiParams,
+    });
+
+    return response.data.data;
   } catch (error) {
-    console.error("❌ Error in getAllHospitals:", error);
-    throw error;
+    const err = error as AxiosError<ErrorResponse>;
+    console.error("❌ Error in getAllHospitals:", err);
+
+    if (err.response?.data?.message) {
+      toast.error(err.response.data.message);
+    } else {
+      toast.error("Không thể lấy danh sách bệnh viện!");
+    }
+
+    // Trả về dữ liệu rỗng để tránh crash UI
+    return {
+      meta: { page: 1, pageSize: params.size || 10, pages: 0, total: 0 },
+      data: [],
+    };
   }
 };
 
@@ -45,104 +106,51 @@ const getHospitalById = async (hospitalId: number) => {
 };
 
 // Thêm bệnh viện mới
-const postHospital = async (name: string, address: string, phone: string) => {
+const postHospital = async (data: HospitalRequest) => {
   try {
-    const response = await axiosInstance.post("/hospitals", {
-      name,
-      address,
-      phone,
-    });
-    toast.success(response.data.message);
+    const response = await axiosInstance.post("/hospitals", data);
+    toast.success(response.data.message || "Thêm bệnh viện thành công");
     return response.data.data;
   } catch (error) {
     const err = error as AxiosError<ErrorResponse>;
     console.error("❌ Error in postHospital:", error);
-    toast.error(err?.response?.data?.error);
+    toast.error(err?.response?.data?.message || "Lỗi khi thêm bệnh viện");
     throw error;
   }
 };
 
 // Cập nhật bệnh viện
-const updateHospital = async (
+const updateHospitalById = async (
   hospitalId: number,
-  name: string,
-  address: string,
-  phone: string
+  data: HospitalRequest
 ) => {
   try {
-    const response = await axiosInstance.put(`/hospitals/${hospitalId}`, {
-      name,
-      address,
-      phone,
-    });
-    toast.success(response.data.message);
+    const response = await axiosInstance.put(`/hospitals/${hospitalId}`, data);
+    toast.success(response.data.message || "Cập nhật thành công");
     return response.data.data;
   } catch (error) {
     const err = error as AxiosError<ErrorResponse>;
     console.error("❌ Error in updateHospital:", error);
-    toast.error(err?.response?.data?.error);
+    toast.error(err?.response?.data?.message || "Lỗi khi cập nhật");
     throw error;
   }
 };
 
 // Xóa bệnh viện
-const deleteHospitalById = async (hospitalId: number, onDelete: () => void) => {
-  const confirmDelete = () => {
-    toast(
-      ({ closeToast }) => (
-        <div className="flex flex-col p-2 w-full">
-          <div className="flex items-center mb-3">
-            <span className="font-medium text-gray-800">
-              Are you sure to delete this hospital?
-            </span>
-          </div>
-          <div className="flex justify-end space-x-2">
-            <Button
-              onClick={async () => {
-                closeToast();
-                try {
-                  const response = await axiosInstance.delete(
-                    `/hospitals/${hospitalId}`
-                  );
-                  onDelete();
-                  toast.success(response.data.message);
-                } catch (error) {
-                  console.error("❌ Error in deleteHospital: ", error);
-                  toast.error("❌ Error while deleting hospital!");
-                }
-              }}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
-            >
-              Delete
-            </Button>
-            <Button
-              onClick={closeToast}
-              className="px-4 py-2 bg-gray-600 rounded-lg hover:bg-gray-700 transition-colors font-medium"
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      ),
-      {
-        position: "top-right",
-        autoClose: false,
-        hideProgressBar: true,
-        closeOnClick: false,
-        pauseOnHover: false,
-        draggable: false,
-        className: "custom-confirm-toast",
-      }
-    );
-  };
-
-  confirmDelete();
+const deleteHospitalById = async (hospitalId: number) => {
+  try {
+    const response = await axiosInstance.delete(`/hospitals/${hospitalId}`);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error in deleteHospitalById:", error);
+    throw error;
+  }
 };
 
 export {
   getAllHospitals,
   getHospitalById,
   postHospital,
-  updateHospital,
+  updateHospitalById,
   deleteHospitalById,
 };

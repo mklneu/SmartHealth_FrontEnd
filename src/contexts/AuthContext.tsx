@@ -7,6 +7,7 @@ import { Appointment } from "@/types/frontend";
 import { getMyProfile, UserProfile } from "@/services/UserServices";
 import { PatientProfile } from "@/services/PatientServices";
 import { StaffProfile } from "@/services/StaffServices";
+import { DoctorProfile } from "@/services/DoctorServices";
 
 // Định nghĩa kiểu dữ liệu cho context
 type AuthContextType = {
@@ -25,6 +26,8 @@ type AuthContextType = {
   setPatientProfile: React.Dispatch<
     React.SetStateAction<PatientProfile | null>
   >;
+  doctorProfile: DoctorProfile | null;
+  setDoctorProfile: React.Dispatch<React.SetStateAction<DoctorProfile | null>>;
   staffProfile: StaffProfile | null;
   setStaffProfile: React.Dispatch<React.SetStateAction<StaffProfile | null>>;
   setUser: React.Dispatch<React.SetStateAction<UserProfile | null>>;
@@ -63,6 +66,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [patientProfile, setPatientProfile] = useState<PatientProfile | null>(
     null
   );
+  const [doctorProfile, setDoctorProfile] = useState<DoctorProfile | null>(
+    null
+  );
   const [staffProfile, setStaffProfile] = useState<StaffProfile | null>(null);
   const [appointmentsUpdateTrigger, setAppointmentsUpdateTrigger] = useState(0);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -93,6 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             setUser(fullProfile || null);
             setPatientProfile(fullProfile as PatientProfile || null);
             setStaffProfile(fullProfile as StaffProfile || null);
+            setDoctorProfile(fullProfile as DoctorProfile || null);
             console.log("Fetched full profile:", fullProfile);
             setPatientProfileId(fullProfile?.profileId || null);
             console.log("Fetched profileId:", fullProfile?.profileId);
@@ -132,6 +139,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setPatientProfile,
     staffProfile,
     setStaffProfile,
+    doctorProfile,
+    setDoctorProfile,
     appointmentsUpdateTrigger,
     setAppointmentsUpdateTrigger,
     appointments,

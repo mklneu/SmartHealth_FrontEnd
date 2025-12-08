@@ -18,12 +18,18 @@ import { GiMedicines } from "react-icons/gi";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { scrollToTop } from "../ScrollToTopButton";
+import { LuHospital } from "react-icons/lu";
 
 const adminLinks = [
   {
     href: "/admin/dashboard",
     label: "Dashboard",
     icon: <FaChartBar />,
+  },
+  {
+    href: "/admin/hospital",
+    label: "Bệnh viện",
+    icon: <LuHospital />,
   },
   {
     href: "/admin/doctors",

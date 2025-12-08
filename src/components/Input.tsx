@@ -10,10 +10,11 @@ interface IInputProps {
     | "password"
     | "textarea"
     | "select"
+    | "multiselect"
     | "date"
     | "datetime-local";
   placeholder?: string;
-  value: string | number;
+  value: string | number | (string | number)[];
   disabled?: boolean;
   onChange?: (
     e: React.ChangeEvent<
@@ -86,7 +87,7 @@ const InputBar = ({
           placeholder={placeholder}
           name={name}
           required={required}
-          value={value}
+          value={value as string | number}
           disabled={disabled}
           onChange={onChange}
           autoFocus={autoFocus}
@@ -127,7 +128,7 @@ const InputBar = ({
         )}
         <select
           name={name}
-          value={value}
+          value={value as string | number}
           required={required}
           disabled={disabled}
           onChange={onChange}
@@ -168,6 +169,44 @@ const InputBar = ({
     );
   }
 
+  if (type === "multiselect") {
+    return (
+      <div className="flex min-h-12 relative">
+        {label && (
+          <label
+            className="text-sm 
+          font-medium text-gray-700 
+          px-1 absolute -top-[10.5px] 
+          left-3 bg-white z-10"
+          >
+            {label}
+          </label>
+        )}
+        <select
+          multiple // Thêm thuộc tính multiple
+          name={name}
+          value={Array.isArray(value) ? value.map(String) : []}
+          required={required}
+          disabled={disabled}
+          onChange={onChange}
+          autoFocus={autoFocus}
+          className={`${selectClasses} ${className} appearance-none h-auto py-2`}
+        >
+          {/* Multi-select không có placeholder, có thể dùng label */}
+          {options.map((option) => (
+            <option
+              key={option.value}
+              value={option.value}
+              className="py-1 px-4 hover:bg-blue-100"
+            >
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+
   // Xử lý riêng cho type="date"
   if (type === "date") {
     return (
@@ -200,7 +239,7 @@ const InputBar = ({
           name={name}
           placeholder={placeholder}
           required={required}
-          value={value}
+          value={value as string | number}
           disabled={disabled}
           onChange={onChange}
           onClick={onClick}
@@ -243,7 +282,7 @@ const InputBar = ({
           name={name}
           required={required}
           placeholder={placeholder}
-          value={value}
+          value={value as string | number}
           disabled={disabled}
           onChange={onChange}
           onClick={onClick}
@@ -285,7 +324,7 @@ const InputBar = ({
         name={name}
         required={required}
         placeholder={placeholder}
-        value={value}
+        value={value as string | number}
         disabled={disabled}
         onChange={onChange}
         onClick={onClick}

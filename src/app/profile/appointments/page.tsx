@@ -237,7 +237,7 @@ const AppointmentsTab = () => {
         </select>
       </div>
       <div className="w-full overflow-x-auto">
-        <table className="min-w-[1200px] w-full border rounded-lg">
+        <table className="min-w-[1100px] w-full border rounded-lg">
           <thead className="bg-blue-100 border-b">
             <tr>
               <th className="py-3 px-2 flex justify-center font-semibold text-gray-700 w-20">
@@ -331,10 +331,16 @@ const AppointmentsTab = () => {
                     <td className="py-3 px-2 text-center">
                       {translateAppointmentType(a.appointmentType)}
                     </td>
-                    <td className="py-3 px-2 text-center text-gray-600 max-w-[180px] truncate">
+                    <td
+                      className="py-3 px-2 text-center text-gray-600 max-w-[180px] truncate"
+                      title={a.patientNote || ""}
+                    >
                       {a.patientNote}
                     </td>
-                    <td className="py-3 px-2 text-center text-gray-600 max-w-[180px] truncate">
+                    <td
+                      className="py-3 px-2 text-center text-gray-600 max-w-[180px] truncate"
+                      title={a.doctorNote || ""}
+                    >
                       {a.doctorNote}
                     </td>
                     <td className="py-3 px-2 text-center font-semibold ">
@@ -426,7 +432,7 @@ const AppointmentsTab = () => {
                 onChange={(e) => setModalPatientNote(e.target.value)}
               />
             )}
-            <div className="flex justify-center gap-2">
+            <div className="flex justify-center gap-2 mt-4">
               {userRole === "doctor" && selectedAppointment ? (
                 <>
                   {selectedAppointment.status === "PENDING" && (

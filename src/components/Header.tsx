@@ -23,17 +23,18 @@ const Header = () => {
     setUserName,
     userRole,
     setUserRole,
-    userId,
+    // userId,
     setUserId,
     setUser,
     setAppointmentsUpdateTrigger,
-    // setAppointments,
+    doctorProfile, // Thêm doctorProfile từ context
   } = useAuth();
 
   // Nhận thông báo realtime khi bác sĩ có lịch hẹn mới
   useDoctorNotification({
-    doctorId: userRole?.toLowerCase() === "doctor" ? userId : null,
-    enabled: userRole?.toLowerCase() === "doctor" && !!userId,
+    // SỬA: Lấy ID từ doctorProfile thay vì userId
+    doctorId: doctorProfile?.profileId ?? null,
+    enabled: userRole?.toLowerCase() === "doctor" && !!doctorProfile?.profileId,
     onMessage: async (data) => {
       if (
         typeof data === "object" &&

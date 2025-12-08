@@ -15,7 +15,7 @@ import {
 } from "@/services/PrescriptionServices";
 import { AxiosError } from "axios";
 import { formatAppointmentDate } from "@/services/OtherServices";
-import { getMedicines, Medicine } from "@/services/MedicineServices";
+import { getAllMedicines, Medicine } from "@/services/MedicineServices";
 import { useDebounce } from "@/hooks/useDebounce";
 // 1. Import service và type cho Test Result
 import { translateTestType } from "@/utils/translateEnums";
@@ -118,7 +118,9 @@ const PrescriptionDetailPage = () => {
     if (debouncedSearchTerm) {
       const fetchMedicines = async () => {
         try {
-          const results = await getMedicines(debouncedSearchTerm);
+          const results = await getAllMedicines({
+            search: debouncedSearchTerm,
+          });
           setMedicineSearchResults(results?.data || []);
         } catch (error) {
           console.error("Failed to fetch medicines:", error);

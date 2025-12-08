@@ -49,8 +49,8 @@ const UpdateStaffModal = (props: IUpdateModalProps) => {
     if (show) {
       const fetchHospitals = async () => {
         try {
-          const res = await getAllHospitals();
-          const options = res.map((h: Hospital) => ({
+          const res = await getAllHospitals({size: 1000});
+          const options = res.data.map((h: Hospital) => ({
             label: h.name,
             value: h.id,
           }));
