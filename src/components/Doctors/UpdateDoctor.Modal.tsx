@@ -6,6 +6,8 @@ import {
   DoctorProfile,
   getDoctorById,
   updateDoctor,
+  updateRecurringScheduleByDoctorId,
+  // updateDoctorSchedule, // Giả sử bạn có hàm này import từ service
 } from "@/services/DoctorServices";
 import { genderOptions } from "@/utils/map";
 import {
@@ -13,6 +15,23 @@ import {
   Specialty,
 } from "@/services/SpecialtyServices";
 import { translateSpecialty } from "@/utils/translateEnums";
+
+// --- 1. ĐỊNH NGHĨA TYPE CHO LỊCH ---
+interface RecurringSchedule {
+  id?: number;
+  daysOfWeek: string[]; // ["MONDAY", "WEDNESDAY", ...]
+  startTime: string;
+  endTime: string;
+  slotDurationMinutes: number;
+  price: number;
+  startDate: string;
+  endDate: string;
+}
+
+// Mở rộng interface DoctorProfile để chứa schedule (nếu chưa có trong file gốc)
+interface DoctorProfileWithSchedule extends DoctorProfile {
+  recurringSchedule?: RecurringSchedule;
+}
 
 interface IUpdateModalProps {
   show: boolean;
@@ -22,42 +41,57 @@ interface IUpdateModalProps {
   setDoctorId: (value: number | null) => void;
 }
 
-// Cập nhật state khởi tạo có thêm các trường mới
-const initialDoctorState: Partial<DoctorProfile> = {
+// Danh sách thứ trong tuần để render checkbox/button
+const DAYS_OF_WEEK = [
+  { label: "T2", value: "MONDAY" },
+  { label: "T3", value: "TUESDAY" },
+  { label: "T4", value: "WEDNESDAY" },
+  { label: "T5", value: "THURSDAY" },
+  { label: "T6", value: "FRIDAY" },
+  { label: "T7", value: "SATURDAY" },
+  { label: "CN", value: "SUNDAY" },
+];
+
+const initialDoctorState: Partial<DoctorProfileWithSchedule> = {
   fullName: "",
   email: "",
-  username: "",
-  dob: "",
-  phoneNumber: "",
-  address: "",
-  licenseNumber: "", // Thêm trường này
-  degree: "", // Thêm trường này
-  experienceYears: 0,
-  gender: "MALE",
-  hospital: { id: 0, name: "" },
-  specialty: { id: 0, specialtyName: "", description: "" },
+  // ... các trường cũ
+  recurringSchedule: {
+    daysOfWeek: [],
+    startTime: "08:00",
+    endTime: "17:00",
+    slotDurationMinutes: 30,
+    price: 0,
+    startDate: "",
+    endDate: "",
+  },
 };
 
 const UpdateDoctorModal = (props: IUpdateModalProps) => {
   const { show, setShow, onUpdate, doctorId, setDoctorId } = props;
 
-  const [doctorData, setDoctorData] = useState<Partial<DoctorProfile>>({}); // Dùng Partial để tránh lỗi init
+  // State chứa cả profile và schedule
+  const [doctorData, setDoctorData] = useState<
+    Partial<DoctorProfileWithSchedule>
+  >({});
   const [loading, setLoading] = useState(false);
-
-  // 2. State lưu danh sách chuyên khoa lấy từ API
   const [dynamicSpecOptions, setDynamicSpecOptions] = useState<
     { label: string; value: number }[]
   >([]);
 
-  // Effect 1: Lấy thông tin bác sĩ
+  // --- EFFECT: FETCH DATA ---
   useEffect(() => {
     const fetchDoctorDetails = async () => {
       setLoading(true);
       try {
         const data = await getDoctorById(doctorId);
+        // Nếu API trả về data có recurringSchedule null, ta init object rỗng để tránh lỗi null access
+        if (!data.recurringSchedule) {
+          data.recurringSchedule = initialDoctorState.recurringSchedule;
+        }
         setDoctorData(data);
       } catch (error) {
-        console.error("Lỗi:", error);
+        console.error(error);
         toast.error("Không thể lấy thông tin bác sĩ");
         setDoctorId(null);
         setShow(false);
@@ -67,62 +101,86 @@ const UpdateDoctorModal = (props: IUpdateModalProps) => {
       }
     };
 
-    if (doctorId && show) {
-      fetchDoctorDetails();
-    }
+    if (doctorId && show) fetchDoctorDetails();
   }, [doctorId, show, setDoctorId, setShow]);
 
-  // Effect 2: Lấy danh sách chuyên khoa dựa theo Hospital ID của bác sĩ
+  // --- EFFECT: FETCH SPECIALTIES (Giữ nguyên) ---
   useEffect(() => {
     const fetchSpecs = async () => {
-      // Chỉ gọi khi đã có thông tin bệnh viện của bác sĩ
       if (doctorData.hospital?.id) {
         try {
           const res = await getSpecialtiesByHospitalId(
             String(doctorData.hospital.id)
           );
-          // Map dữ liệu API về format { label, value } cho InputBar
-          // Giả sử res trả về mảng: [{ id: 1, specialtyName: "Tim mạch" }, ...]
           const options = res.map((item: Specialty) => ({
             label: translateSpecialty(item.specialtyName),
-            value: item.id, // Value là ID số
+            value: item.id,
           }));
           setDynamicSpecOptions(options);
         } catch (error) {
-          console.error("Lỗi lấy chuyên khoa:", error);
+          console.error(error);
         }
       }
     };
-
     fetchSpecs();
-  }, [doctorData.hospital?.id]); // Chạy lại khi hospitalId thay đổi
+  }, [doctorData.hospital?.id]);
 
+  // --- HANDLER: INPUT FORM PROFILE (Giữ nguyên logic cũ) ---
   const handleInputChange = (
     e: React.ChangeEvent<
-      HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
     const { name, value } = e.target;
-
     if (name === "experienceYears") {
       setDoctorData((prev) => ({ ...prev, [name]: Number(value) }));
-      return;
-    }
-
-    // 3. Xử lý chọn chuyên khoa (Lưu ID vào state)
-    if (name === "specialty") {
+    } else if (name === "specialty") {
       setDoctorData((prev) => ({
         ...prev,
-        specialty: {
-          ...prev.specialty!,
-          id: Number(value), // Quan trọng: Chuyển value thành số để lưu ID
-        },
+        specialty: { ...prev.specialty!, id: Number(value) },
       }));
-      return;
+    } else {
+      setDoctorData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  // --- HANDLER: INPUT FORM SCHEDULE (MỚI) ---
+  const handleScheduleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setDoctorData((prev) => ({
+      ...prev,
+      recurringSchedule: {
+        ...prev.recurringSchedule!,
+        // Nếu là price hoặc slotDuration thì parse number, còn lại giữ string
+        [name]:
+          name === "price" || name === "slotDurationMinutes"
+            ? Number(value)
+            : value,
+      },
+    }));
+  };
+
+  // --- HANDLER: CHỌN THỨ TRONG TUẦN (MỚI) ---
+  const toggleDay = (dayValue: string) => {
+    const currentDays = doctorData.recurringSchedule?.daysOfWeek || [];
+    let newDays;
+    if (currentDays.includes(dayValue)) {
+      newDays = currentDays.filter((d) => d !== dayValue);
+    } else {
+      newDays = [...currentDays, dayValue];
     }
 
-    // Các trường text thông thường
-    setDoctorData((prev) => ({ ...prev, [name]: value }));
+    setDoctorData((prev) => ({
+      ...prev,
+      recurringSchedule: {
+        ...prev.recurringSchedule!,
+        daysOfWeek: newDays,
+      },
+    }));
   };
 
   const handleClose = () => {
@@ -131,37 +189,58 @@ const UpdateDoctorModal = (props: IUpdateModalProps) => {
     setDoctorData(initialDoctorState);
   };
 
-  // --- SỬA LẠI HÀM UPDATE ĐỂ TẠO BODY ĐÚNG CẤU TRÚC ---
-  const handleUpdate = async () => {
+  // --- UPDATE LOGIC: GỌI 2 API RIÊNG BIỆT ---
+  const handleUpdateAll = async () => {
     if (!doctorData.fullName || !doctorData.email) {
-      toast.error("Vui lòng điền đầy đủ thông tin bắt buộc!");
+      toast.error("Vui lòng điền thông tin cơ bản!");
       return;
     }
 
-    // Tạo payload theo đúng cấu trúc JSON yêu cầu
-    const updateBody = {
-      phoneNumber: doctorData.phoneNumber,
-      fullName: doctorData.fullName,
-      dob: doctorData.dob, // Định dạng YYYY-MM-DD từ input type="date"
-      gender: doctorData.gender,
-      address: doctorData.address,
-      licenseNumber: doctorData.licenseNumber,
-      experienceYears: doctorData.experienceYears,
-      degree: doctorData.degree,
-      hospitalId: doctorData.hospital?.id, // Lấy ID từ object hospital
-      specialtyId: doctorData.specialty?.id, // Lấy ID từ object specialty
-    };
-
     setLoading(true);
     try {
-      // Gửi updateBody thay vì doctorData
-      await updateDoctor(doctorId, updateBody);
-      toast.success("Cập nhật thông tin bác sĩ thành công!");
+      // 1. Chuẩn bị Body cho Profile
+      const profileBody = {
+        phoneNumber: doctorData.phoneNumber,
+        fullName: doctorData.fullName,
+        dob: doctorData.dob,
+        gender: doctorData.gender,
+        address: doctorData.address,
+        licenseNumber: doctorData.licenseNumber,
+        experienceYears: doctorData.experienceYears,
+        degree: doctorData.degree,
+        hospitalId: doctorData.hospital?.id,
+        specialtyId: doctorData.specialty?.id,
+      };
+
+      // 2. Chuẩn bị Body cho Schedule (Dựa theo cấu trúc bạn cung cấp)
+      const scheduleBody = {
+        profileId: doctorId,
+        daysOfWeek: doctorData.recurringSchedule?.daysOfWeek,
+        startTime: doctorData.recurringSchedule?.startTime,
+        endTime: doctorData.recurringSchedule?.endTime,
+        slotDurationMinutes: doctorData.recurringSchedule?.slotDurationMinutes,
+        price: doctorData.recurringSchedule?.price,
+        startDate: doctorData.recurringSchedule?.startDate,
+        endDate: doctorData.recurringSchedule?.endDate,
+        // Nếu cần doctorId trong body thì thêm vào đây, hoặc truyền qua params tuỳ API của bạn
+      };
+
+      // 3. Gọi song song hoặc tuần tự. Ở đây mình gọi tuần tự để dễ debug
+      // Update Profile
+      await updateDoctor(doctorId, profileBody);
+
+      // Update Schedule (Giả sử bạn có hàm này)
+      await updateRecurringScheduleByDoctorId(scheduleBody);
+      console.log("Update Schedule Body:", scheduleBody); // Log để test
+
+      // NOTE: Bạn hãy uncomment dòng trên và thay bằng hàm API thực tế của bạn
+
+      toast.success("Cập nhật đầy đủ thông tin thành công!");
       onUpdate();
       handleClose();
     } catch (error) {
-      console.error("Lỗi khi cập nhật thông tin bác sĩ:", error);
-      toast.error("Có lỗi xảy ra khi cập nhật");
+      console.error("Lỗi cập nhật:", error);
+      toast.error("Có lỗi xảy ra khi cập nhật (Chi tiết trong console)");
     } finally {
       setLoading(false);
     }
@@ -170,40 +249,38 @@ const UpdateDoctorModal = (props: IUpdateModalProps) => {
   return (
     <>
       {show && (
-        <form
-          onSubmit={(e) => e.preventDefault()}
-          className={`flex justify-between bg-[rgba(0,0,0,0.4)] fixed
-          items-center w-full min-h-screen mb-6 top-0 right-0 p-4 z-50`}
-        >
-          <div
-            className="mx-auto bg-white text-black 
-            rounded-lg shadow-2xl border border-gray-400
-            w-196 max-w-2xl max-h-[90vh] overflow-y-auto" // Thêm scroll nếu form dài
-          >
-            <h1 className="px-5 py-4 text-2xl font-semibold sticky top-0 bg-white z-10 border-b">
-              Cập nhật thông tin bác sĩ{" "}
-              <span className="text-gray-600 font-bold text-sm">
-                ID: {doctorId}
-              </span>
-            </h1>
+        <form className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-y-auto flex flex-col">
+            {/* Header */}
+            <div className="px-6 py-4 border-b sticky top-0 bg-white z-10 flex justify-between items-center">
+              <h1 className="text-2xl font-bold text-gray-800">
+                Cập nhật Bác sĩ{" "}
+                <span className="text-blue-600">#{doctorId}</span>
+              </h1>
+            </div>
 
-            {loading && <p className="text-center py-4">Đang tải dữ liệu...</p>}
+            {loading ? (
+              <div className="p-10 text-center">Đang xử lý dữ liệu...</div>
+            ) : (
+              <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* --- CỘT TRÁI: THÔNG TIN CÁ NHÂN --- */}
+                <div className="space-y-4 border-r pr-0 lg:pr-6 border-gray-200">
+                  <h3 className="text-lg font-semibold text-blue-800 uppercase mb-4">
+                    Thông tin hồ sơ
+                  </h3>
 
-            {!loading && (
-              <>
-                <div className="w-11/12 mx-auto my-6 space-y-4">
                   <InputBar
-                    label="Họ và tên"
+                    label="Họ tên"
                     name="fullName"
                     value={doctorData.fullName || ""}
-                    placeholder="Nhập họ tên bác sĩ"
                     onChange={handleInputChange}
                   />
+
                   <div className="grid grid-cols-2 gap-4">
                     <InputBar
                       label="Ngày sinh"
-                      name="dob"
                       type="date"
+                      name="dob"
                       value={doctorData.dob || ""}
                       onChange={handleInputChange}
                     />
@@ -212,34 +289,30 @@ const UpdateDoctorModal = (props: IUpdateModalProps) => {
                       label="Giới tính"
                       name="gender"
                       value={doctorData.gender || ""}
-                      placeholder="Chọn giới tính"
-                      onChange={handleInputChange}
                       options={genderOptions}
+                      onChange={handleInputChange}
                     />
                   </div>
+
                   <InputBar
                     label="Địa chỉ"
                     name="address"
                     value={doctorData.address || ""}
-                    placeholder="Nhập địa chỉ"
                     onChange={handleInputChange}
                   />
 
                   <div className="grid grid-cols-2 gap-4">
                     <InputBar
-                      label="Số điện thoại"
+                      label="SĐT"
                       name="phoneNumber"
                       value={doctorData.phoneNumber || ""}
-                      placeholder="Nhập số điện thoại"
                       onChange={handleInputChange}
                     />
                     <InputBar
                       label="Email"
                       disabled
-                      type="email"
                       name="email"
                       value={doctorData.email || ""}
-                      placeholder="Nhập email"
                       onChange={handleInputChange}
                     />
                   </div>
@@ -249,52 +322,150 @@ const UpdateDoctorModal = (props: IUpdateModalProps) => {
                       label="Số CCHN"
                       name="licenseNumber"
                       value={doctorData.licenseNumber || ""}
-                      placeholder="Số chứng chỉ hành nghề"
                       onChange={handleInputChange}
                     />
                     <InputBar
-                      label="Học vị / Bằng cấp"
+                      label="Học vị"
                       name="degree"
                       value={doctorData.degree || ""}
-                      placeholder="VD: Tiến sĩ, Thạc sĩ..."
                       onChange={handleInputChange}
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    {/* 4. Cập nhật InputBar Chuyên khoa */}
                     <InputBar
                       type="select"
                       label="Chuyên khoa"
                       name="specialty"
-                      // Value lấy từ ID hiện tại của bác sĩ
                       value={doctorData.specialty?.id || ""}
-                      placeholder="Chọn chuyên khoa"
-                      onChange={handleInputChange}
-                      // Dùng options động từ API
                       options={dynamicSpecOptions}
+                      onChange={handleInputChange}
                     />
-
                     <InputBar
-                      label="Số năm kinh nghiệm"
+                      label="Kinh nghiệm (năm)"
+                      type="number"
                       name="experienceYears"
                       value={doctorData.experienceYears?.toString() || "0"}
-                      placeholder="Nhập số năm"
                       onChange={handleInputChange}
                     />
                   </div>
                 </div>
 
-                <div className="flex justify-end mx-auto gap-2 mt-1 mb-6 w-11/12">
-                  <Button variant="secondary" onClick={handleClose}>
-                    Hủy
-                  </Button>
-                  <Button variant="primary" onClick={handleUpdate}>
-                    {loading ? "Đang cập nhật..." : "Cập nhật"}
-                  </Button>
+                {/* --- CỘT PHẢI: LỊCH LÀM VIỆC (MỚI) --- */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-green-700 uppercase mb-2 flex justify-between">
+                    Cấu hình lịch khám
+                  </h3>
+
+                  {/* Chọn Thứ */}
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Ngày làm việc trong tuần
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {DAYS_OF_WEEK.map((day) => {
+                        const isSelected =
+                          doctorData.recurringSchedule?.daysOfWeek?.includes(
+                            day.value
+                          );
+                        return (
+                          <button
+                            key={day.value}
+                            type="button"
+                            onClick={() => toggleDay(day.value)}
+                            className={`px-3 py-1 rounded-full text-sm font-medium border duration-300 cursor-pointer
+                              ${
+                                isSelected
+                                  ? "bg-green-600 text-white border-green-600 shadow-md"
+                                  : "bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200"
+                              }`}
+                          >
+                            {day.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Thời gian & Giá */}
+                  <div className="grid grid-cols-2 gap-4 mt-6">
+                    <InputBar
+                      label="Giờ bắt đầu"
+                      type="time"
+                      name="startTime"
+                      value={doctorData.recurringSchedule?.startTime || ""}
+                      onChange={handleScheduleChange}
+                    />
+                    <InputBar
+                      label="Giờ kết thúc"
+                      type="time"
+                      name="endTime"
+                      value={doctorData.recurringSchedule?.endTime || ""}
+                      onChange={handleScheduleChange}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <InputBar
+                      label="Thời lượng khám (phút)"
+                      type="number"
+                      name="slotDurationMinutes"
+                      value={
+                        doctorData.recurringSchedule?.slotDurationMinutes?.toString() ||
+                        "15"
+                      }
+                      onChange={handleScheduleChange}
+                    />
+                    <InputBar
+                      label="Giá khám (VNĐ)"
+                      type="number"
+                      name="price"
+                      value={
+                        doctorData.recurringSchedule?.price?.toString() || "0"
+                      }
+                      onChange={handleScheduleChange}
+                    />
+                  </div>
+
+                  {/* Ngày hiệu lực */}
+                  <div className="grid grid-cols-2 gap-4 border-t pt-4 mt-2">
+                    <InputBar
+                      label="Ngày bắt đầu áp dụng"
+                      type="date"
+                      name="startDate"
+                      value={doctorData.recurringSchedule?.startDate || ""}
+                      onChange={handleScheduleChange}
+                    />
+                    <InputBar
+                      label="Ngày kết thúc"
+                      type="date"
+                      name="endDate"
+                      value={doctorData.recurringSchedule?.endDate || ""}
+                      onChange={handleScheduleChange}
+                    />
+                  </div>
+
+                  <div className="p-3 bg-blue-50 text-blue-800 text-sm rounded-xl border border-blue-200 mt-4">
+                    ℹ️ <strong>Lưu ý:</strong> Việc cập nhật lịch sẽ tạo ra các
+                    slot khám mới trong khoảng thời gian đã chọn.
+                  </div>
                 </div>
-              </>
+              </div>
             )}
+
+            {/* Footer Buttons */}
+            <div className="p-4 border-t bg-gray-50 flex justify-end gap-3 rounded-b-xl sticky bottom-0">
+              <Button variant="secondary" onClick={handleClose}>
+                Đóng
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleUpdateAll}
+                disabled={loading}
+              >
+                {loading ? "Đang lưu..." : "Lưu tất cả thay đổi"}
+              </Button>
+            </div>
           </div>
         </form>
       )}

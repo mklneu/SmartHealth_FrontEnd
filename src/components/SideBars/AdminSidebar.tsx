@@ -27,7 +27,7 @@ const adminLinks = [
     icon: <FaChartBar />,
   },
   {
-    href: "/admin/hospital",
+    href: "/admin/hospitals",
     label: "Bệnh viện",
     icon: <LuHospital />,
   },

@@ -140,6 +140,14 @@ const formatAppointmentDateTime = (dateStr: string): string => {
   return `${hours}:${minutes} - ${day}/${month}/${year}`;
 };
 
+const formatTime = (timeStr: string): string => {
+  if (!timeStr || typeof timeStr !== "string") {
+    return "";
+  }
+  // Chỉ lấy 5 ký tự đầu tiên (HH:mm)
+  return timeStr.slice(0, 5);
+};
+
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
@@ -233,4 +241,5 @@ export {
   getInitialGmt7Time,
   formatTotalCost,
   TestResultStatusBadge,
+  formatTime,
 };

@@ -114,3 +114,13 @@ export const departmentOptions = [
   { label: "Phòng Hành chính", value: "ADMINISTRATION" },
   { label: "Ban Giám đốc", value: "BOARD_OF_DIRECTORS" },
 ];
+
+export const daysOfWeekOptions = [
+  { value: "MONDAY", label: "Thứ Hai" },
+  { value: "TUESDAY", label: "Thứ Ba" },
+  { value: "WEDNESDAY", label: "Thứ Tư" },
+  { value: "THURSDAY", label: "Thứ Năm" },
+  { value: "FRIDAY", label: "Thứ Sáu" },
+  { value: "SATURDAY", label: "Thứ Bảy" },
+  { value: "SUNDAY", label: "Chủ Nhật" },
+];

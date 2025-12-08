@@ -296,7 +296,7 @@ export default function BookingPage() {
                     <Button
                       key={date}
                       onClick={() => setSelectedDate(date)}
-                      className={`${
+                      className={`w-36 min-w-35 ${
                         selectedDate === date
                           ? "bg-blue-600 text-white border-blue-600"
                           : ""

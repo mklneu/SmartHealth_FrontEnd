@@ -12,7 +12,9 @@ interface IInputProps {
     | "select"
     | "multiselect"
     | "date"
-    | "datetime-local";
+    | "datetime-local"
+    | "number"
+    | "time";
   placeholder?: string;
   value: string | number | (string | number)[];
   disabled?: boolean;

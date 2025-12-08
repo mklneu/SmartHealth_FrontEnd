@@ -1,11 +1,7 @@
 import { toast } from "react-toastify";
 import axiosInstance from "./axiosInstance";
 import { AxiosError } from "axios";
-import {
-  ErrorResponse,
-  Gender,
-  PaginatedResponse,
-} from "@/types/frontend";
+import { ErrorResponse, Gender, PaginatedResponse } from "@/types/frontend";
 
 export interface DoctorProfile {
   profileId: number;
@@ -71,6 +67,31 @@ interface DoctorQueryParams {
   filterStatus?: string;
 }
 
+// THÊM: Interface cho request tạo lịch định kỳ
+export interface RecurringScheduleRequest {
+  profileId: number;
+  daysOfWeek: string[];
+  startTime: string;
+  endTime: string;
+  slotDurationMinutes: number;
+  price: number;
+  startDate: string;
+  endDate: string;
+}
+
+export interface RecurringScheduleResponse {
+  id: number;
+  doctor: { id: number; name: string };
+  specialty: { id: number; specialtyName: string; description: string };
+  daysOfWeek: string[];
+  startTime: string;
+  endTime: string;
+  slotDurationMinutes: number;
+  price: number;
+  startDate: string;
+  endDate: string;
+}
+
 // Lấy tất cả bác sĩ
 const getAllDoctors = async (
   params: DoctorQueryParams
@@ -101,7 +122,9 @@ const getAllDoctors = async (
     // 5. Thêm logic lọc cho 'filterSpecialization'
     if (params.filterSpecialization && params.filterSpecialization !== "ALL") {
       // Giả sử tên trường là 'specialization' và dùng toán tử '==' (hoặc '~' nếu bạn muốn)
-      filterParts.push(`specialty.specialtyName:'${params.filterSpecialization}'`);
+      filterParts.push(
+        `specialty.specialtyName:'${params.filterSpecialization}'`
+      );
     }
 
     // 6. Thêm logic lọc cho 'filterStatus'
@@ -279,6 +302,55 @@ const deleteDoctorById = async (doctorId: number, callback: () => void) => {
   }
 };
 
+// THÊM: Hàm tạo lịch làm việc định kỳ cho bác sĩ
+export const createRecurringSchedule = async (
+  body: RecurringScheduleRequest
+): Promise<RecurringScheduleResponse> => {
+  try {
+    const response = await axiosInstance.post("/recurring-schedules", body);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi tạo lịch làm việc định kỳ:", error);
+    throw error;
+  }
+};
+
+// THÊM: Hàm cập nhật lịch làm việc định kỳ
+export const updateRecurringScheduleByDoctorId = async (
+  body: Partial<RecurringScheduleRequest>
+): Promise<RecurringScheduleResponse> => {
+  try {
+    // Giả sử API của bạn dùng phương thức PUT
+    const response = await axiosInstance.put(
+      `/recurring-schedules/doctor`,
+      body
+    );
+    console.log("Response from updateRecurringScheduleByDoctorId:", response.data.data);
+    return response.data.data;
+  } catch (error) {
+    console.error("Lỗi khi cập nhật lịch làm việc định kỳ:", error);
+    throw error;
+  }
+};
+
+// Hàm này có vẻ là một placeholder, bạn có thể xóa hoặc sửa lại
+const gernerateScheduleByHand = async () => {
+  try {
+    await axiosInstance.post(`/recurring-schedules/generate-now`);
+    toast.success("Tạo lịch mới thành công!");
+  } catch (error) {
+    const err = error as AxiosError<ErrorResponse>;
+    console.error("Error in gernerateScheduleByHand:", err);
+
+    if (err.response?.data?.message) {
+      toast.error(err.response.data.message);
+    } else {
+      toast.error(`Không thể tạo lịch mới!`);
+    }
+    throw err;
+  }
+};
+
 export {
   getAllDoctors,
   getDoctorById,
@@ -288,4 +360,5 @@ export {
   deleteDoctor,
   updateDoctorStatus,
   deleteDoctorById,
+  gernerateScheduleByHand,
 };

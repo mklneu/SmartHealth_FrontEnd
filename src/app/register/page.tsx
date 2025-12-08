@@ -132,7 +132,7 @@ export default function RegisterPage() {
               >
                 Thông tin tài khoản
               </h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-3">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 <div className="lg:col-span-2">
                   <InputBar
                     placeholder="Tên đăng nhập"
@@ -188,7 +188,7 @@ export default function RegisterPage() {
               >
                 Thông tin cá nhân
               </h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-3">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 <InputBar
                   placeholder="Họ và tên"
                   name="fullName"
@@ -254,7 +254,7 @@ export default function RegisterPage() {
               >
                 Thông tin y tế & Khẩn cấp
               </h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-3">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 <InputBar
                   placeholder="Số BHYT"
                   name="insuranceId"

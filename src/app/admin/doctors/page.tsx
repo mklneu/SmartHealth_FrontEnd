@@ -17,6 +17,7 @@ import { translateGender, translateSpecialty } from "@/utils/translateEnums";
 import {
   deleteDoctor,
   DoctorProfile,
+  gernerateScheduleByHand,
   getAllDoctors,
 } from "@/services/DoctorServices";
 import { Pagination } from "@/services/OtherServices";
@@ -178,7 +179,7 @@ export default function DoctorsPage() {
         <div className="bg-white rounded-xl p-4 mb-6 shadow-md">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             {/* Search bar */}
-            <div className="relative lg:col-span-1 lg:col-start-1 w-fit">
+            <div className="relative lg:col-span-1 lg:col-start-1 w-fit flex flex-row gap-4">
               <FaSearch className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400" />
               <input
                 value={searchTerm}
@@ -187,6 +188,15 @@ export default function DoctorsPage() {
                 className="w-full pl-10 p-2.5 border text-gray-700 focus:border-blue-500 border-gray-300 rounded-lg bg-gray-50 outline-none text-sm"
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+            </div>
+            <div>
+              <Button
+                className="h-11"
+                variant="green"
+                onClick={gernerateScheduleByHand}
+              >
+                Tạo lịch mới
+              </Button>
             </div>
             <div className="flex flex-row gap-4 ">
               <div className="relative lg:justify-end w-fit">
@@ -296,9 +306,9 @@ export default function DoctorsPage() {
                     <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Bệnh viện
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {/* <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Chuyên khoa
-                    </th>
+                    </th> */}
                     <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Liên hệ
                     </th>
@@ -349,15 +359,21 @@ export default function DoctorsPage() {
                        text-sm text-gray-500"
                       >
                         {doctor.hospital.name}
+                        <div
+                          className="px-2 w-fit flex text-xs mx-auto mt-1
+                        leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
+                        >
+                          {translateSpecialty(doctor.specialty.specialtyName)}
+                        </div>
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
+                      {/* <td className="px-4 py-4 whitespace-nowrap">
                         <div
                           className="px-2 w-fit flex text-xs mx-auto 
                         leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
                         >
                           {translateSpecialty(doctor.specialty.specialtyName)}
                         </div>
-                      </td>
+                      </td> */}
                       <td className="px-4 py-4 whitespace-nowrap text-center">
                         <div className="text-sm text-gray-900">
                           {doctor.email}

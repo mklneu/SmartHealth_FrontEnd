@@ -14,6 +14,7 @@ import {
 } from "@/utils/translateEnums";
 import {
   formatAppointmentDate,
+  formatTime,
   getStatusButtonClass,
   Pagination,
 } from "@/services/OtherServices";
@@ -324,7 +325,7 @@ const AppointmentsTab = () => {
                         : a.doctor?.fullName}
                     </td>
                     <td className="py-3 px-2 text-center">
-                      {a.appointmentTime} -{" "}
+                      {formatTime(a.appointmentTime)} -{" "}
                       {formatAppointmentDate(a.appointmentDate)}
                     </td>
                     <td className="py-3 px-2 text-center">{a.clinicRoom}</td>
