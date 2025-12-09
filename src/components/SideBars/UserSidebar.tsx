@@ -36,7 +36,7 @@ const userLinks = [
   },
   {
     href: "/profile/testResults",
-    label: "Hồ sơ bệnh án",
+    label: "Kết quả xét nghiệm",
     icon: <IoIosFolderOpen />,
     roles: ["patient"], // Hiển thị cho bệnh nhân và admin
   },
@@ -56,7 +56,7 @@ const userLinks = [
     href: "/profile/medical-records",
     label: "Hồ sơ bệnh án",
     icon: <FaFileContract />,
-    roles: ["doctor"], // Hiển thị cho bệnh nhân, bác sĩ và nhân viên
+    roles: ["doctor", "patient"],  // Hiển thị cho bệnh nhân, bác sĩ và nhân viên
   },
 ];
 

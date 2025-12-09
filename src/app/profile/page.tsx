@@ -52,23 +52,22 @@ export default function ProfilePage() {
                   Đặt lịch ngay
                 </Button>
               </div>
-              <div className="flex flex-col justify-between rounded-lg border border-blue-200 bg-blue-50 p-6">
+              <div className="flex flex-col justify-between rounded-lg border border-purple-200 bg-purple-50 p-6">
                 <div>
-                  <h2 className="mb-2 text-xl font-semibold text-blue-800">
-                    Đặt lịch hẹn mới
+                  <h2 className="mb-2 text-xl font-semibold text-purple-800">
+                    Quản lý Hồ sơ Bệnh án
                   </h2>
-                  <p className="mb-4 text-blue-700">
-                    Nhanh chóng tìm kiếm và đặt lịch khám với các bác sĩ hàng
-                    đầu.
+                  <p className="mb-4 text-purple-700">
+                    Xem sơ bệnh án của bạn.
                   </p>
                 </div>
                 <Button
                   variant="primary"
-                  onClick={() => router.push("/booking")}
-                  className="w-fit"
+                  onClick={() => router.push("/profile/medical-records")}
+                  className="w-fit bg-purple-600 hover:bg-purple-700"
                 >
-                  <FaCalendarPlus className="mr-2" />
-                  Đặt lịch ngay
+                  <FaFileMedical className="mr-1" />
+                  Quản lý hồ sơ
                 </Button>
               </div>
             </>

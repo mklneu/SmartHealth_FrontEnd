@@ -99,7 +99,7 @@ const MedicalTab = () => {
     <div className="p-2 sm:p-4 md:p-8 min-h-screen w-full mx-auto">
       <h2 className="text-2xl font-bold flex items-center gap-2 text-blue-800 mb-6">
         <FaFileMedicalAlt />
-        Hồ sơ bệnh án của tôi
+        Kết quả xét nghiệm & Đơn thuốc
       </h2>
 
       <div className="flex border-b border-gray-200 mb-6">
