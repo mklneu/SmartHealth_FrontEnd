@@ -122,3 +122,16 @@ export const translateDepartment = (department: string): string => {
   };
   return departmentMap[department] || department;
 };
+
+export const translateDayOfWeek = (day: string): string => {
+  const dayMap: Record<string, string> = {
+    MONDAY: "Thứ Hai",
+    TUESDAY: "Thứ Ba",
+    WEDNESDAY: "Thứ Tư",
+    THURSDAY: "Thứ Năm",
+    FRIDAY: "Thứ Sáu",
+    SATURDAY: "Thứ Bảy",
+    SUNDAY: "Chủ Nhật",
+  };
+  return dayMap[day] || day;
+};

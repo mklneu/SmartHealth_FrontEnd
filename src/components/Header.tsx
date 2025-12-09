@@ -191,7 +191,7 @@ const Header = () => {
                         tabIndex={-1}
                       >
                         <Link
-                          href="/profile/info"
+                          href="/profile"
                           className="block px-4 py-2 text-gray-800 
                           hover:bg-blue-100 transition-colors duration-150"
                           tabIndex={0}

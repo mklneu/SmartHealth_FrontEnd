@@ -1,11 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { FaBars, FaChevronLeft, FaUser } from "react-icons/fa";
+import {
+  FaBars,
+  FaCalendarAlt,
+  FaChevronLeft,
+  FaFileContract,
+  FaUser,
+} from "react-icons/fa";
 import { IoCalendarClear } from "react-icons/io5";
 import { IoIosFolderOpen } from "react-icons/io";
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { scrollToTop } from "../ScrollToTopButton";
 import { FaUserClock } from "react-icons/fa";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,6 +21,12 @@ const userLinks = [
     href: "/profile/info",
     label: "Thông tin cá nhân",
     icon: <FaUser />,
+  },
+  {
+    href: "/profile/schedule",
+    label: "Lịch làm việc",
+    icon: <FaCalendarAlt />,
+    roles: ["doctor"], // Hiển thị cho bệnh nhân, bác sĩ và nhân viên
   },
   {
     href: "/profile/appointments",
@@ -40,12 +52,19 @@ const userLinks = [
     icon: <FaUserClock />,
     roles: ["staff"], // Chỉ hiển thị cho bác sĩ
   },
+  {
+    href: "/profile/medical-records",
+    label: "Hồ sơ bệnh án",
+    icon: <FaFileContract />,
+    roles: ["doctor"], // Hiển thị cho bệnh nhân, bác sĩ và nhân viên
+  },
 ];
 
 const UserSidebar = () => {
   const [open, setOpen] = useState(true);
   const pathname = usePathname();
   const { userRole } = useAuth();
+  const router = useRouter(); // SỬA: Khởi tạo router
 
   // Lọc các link dựa trên vai trò của người dùng
   const filteredLinks = userLinks.filter(
@@ -74,9 +93,10 @@ const UserSidebar = () => {
         </button>
         <h2
           className={`absolute top-4 text-2xl px-4 font-bold text-center
-             tracking-wide duration-300 ${
+             tracking-wide duration-300 cursor-pointer ${
                open ? "opacity-100 delay-150" : "opacity-0 h-0 overflow-hidden"
              }`}
+          onClick={() => router.push("/profile")}
         >
           {""} Người dùng
         </h2>
