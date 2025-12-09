@@ -173,7 +173,7 @@ const AddPatientModal = (props: IAddModalProps) => {
                 <h3 className="font-semibold text-blue-600 border-b pb-2">
                   Thông tin cá nhân
                 </h3>
-                <div>
+                <div className="space-y-4">
                   <InputBar
                     label="Họ và tên"
                     name="fullName"
@@ -261,7 +261,7 @@ const AddPatientModal = (props: IAddModalProps) => {
                   <h4 className="text-sm font-bold text-red-600 mb-4">
                     Liên hệ khẩn cấp
                   </h4>
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     <InputBar
                       label="Tên người thân"
                       name="emergencyContactName"

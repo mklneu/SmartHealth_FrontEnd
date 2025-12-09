@@ -160,12 +160,14 @@ const AddEditMedicineModal = ({
             <div className="grid grid-cols-2 gap-4">
               <InputBar
                 label="Tên thuốc"
+                placeholder="Điền tên thuốc"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
               />
               <InputBar
                 label="Hoạt chất"
+                placeholder="VD: Paracetamol"
                 name="activeIngredient"
                 value={formData.activeIngredient}
                 onChange={handleInputChange}

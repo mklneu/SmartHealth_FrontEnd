@@ -44,6 +44,7 @@ import { DoctorProfile, getDoctorById } from "@/services/DoctorServices";
 import DoctorOnly from "@/components/DoctorOnly";
 import {
   formatAppointmentDate,
+  formatTime,
   formatTotalCost,
   TestResultStatusBadge,
 } from "@/services/OtherServices";
@@ -316,7 +317,7 @@ const ExaminationDetailPage = () => {
             </div>
           )}
           {/* --- THÊM NÚT XEM LỊCH SỬ TẠI ĐÂY --- */}
-           <DoctorOnly userRole={userRole}>
+          <DoctorOnly userRole={userRole}>
             <Button
               onClick={handleViewHistory}
               variant="white"
@@ -340,7 +341,7 @@ const ExaminationDetailPage = () => {
             </div>
             <div className="flex justify-between border-b border-gray-300 my-2">
               <div className="text-gray-500 text-sm">
-                Thời giam khám: {appointment.appointmentTime} -{" "}
+                Thời giam khám: {formatTime(appointment.appointmentTime)} -{" "}
                 {formatAppointmentDate(appointment.appointmentDate)}
               </div>
               <div className="text-gray-500 text-sm">

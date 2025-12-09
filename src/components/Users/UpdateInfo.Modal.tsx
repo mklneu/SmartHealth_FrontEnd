@@ -211,7 +211,7 @@ const UpdateInfoModal = ({
       >
         Thông tin y tế & liên hệ
       </h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <InputBar
           label="Số CCCD"
           name="citizenId"
@@ -261,7 +261,7 @@ const UpdateInfoModal = ({
         Thông tin chuyên môn
       </h4>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="md:col-span-2">
           <InputBar
             type="select"
@@ -317,7 +317,7 @@ const UpdateInfoModal = ({
       >
         Thông tin công việc
       </h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <InputBar
           label="Mã nhân viên"
           name="employeeId"
@@ -380,7 +380,7 @@ const UpdateInfoModal = ({
                 Thông tin chung
               </h4>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <InputBar
                   label="Họ và tên"
                   name="fullName"

@@ -196,7 +196,7 @@ const AddStaffModal = (props: IAddModalProps) => {
                 <h3 className="font-semibold text-blue-600 border-b pb-2">
                   Thông tin cá nhân
                 </h3>
-                <div>
+                <div className="space-y-4">
                   <InputBar
                     label="Họ và tên"
                     name="fullName"

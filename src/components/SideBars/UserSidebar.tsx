@@ -32,13 +32,13 @@ const userLinks = [
     href: "/profile/appointments",
     label: "Lịch hẹn",
     icon: <IoCalendarClear />,
-    roles: ["patient", "doctor", "admin"], // Hiển thị cho bệnh nhân, bác sĩ và nhân viên
+    roles: ["patient", "doctor"], // Hiển thị cho bệnh nhân, bác sĩ và nhân viên
   },
   {
     href: "/profile/testResults",
     label: "Hồ sơ bệnh án",
     icon: <IoIosFolderOpen />,
-    roles: ["patient", "admin"], // Hiển thị cho bệnh nhân và admin
+    roles: ["patient"], // Hiển thị cho bệnh nhân và admin
   },
   {
     href: "/profile/examinations", // Sửa lại đường dẫn cho đúng
