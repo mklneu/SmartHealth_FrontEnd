@@ -39,11 +39,11 @@ export default function ProfileLayout({
               className="flex flex-col md:flex-row w-full
               items-stretch"
             >
-              <div className="flex-shrink-0 mb-4 md:mb-0">
+              <div className="flex-shrink-0 mb-4 md:mb-0 min-h-screen">
                 {/* <InfoSidebar activeTab={activeTab} /> */}
                 <UserSidebar />
               </div>
-              <main className="flex-1 p-1 bg-white overflow-hidden">
+              <main className="flex-1 p-1 bg-white">
                 <div className="w-full h-full">{children}</div>
               </main>
             </div>

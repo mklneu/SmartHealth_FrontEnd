@@ -261,7 +261,7 @@ const InfoTab = () => {
         <div className="max-w-7xl mx-auto p-4 md:p-8">
           <div className="flex flex-col lg:flex-row items-start gap-4">
             {/* --- CỘT BÊN TRÁI (SIDEBAR) --- */}
-            <div className="w-full lg:w-1/3 lg:max-w-sm flex-shrink-0 lg:sticky lg:top-8">
+            <div className="w-full lg:w-1/3 lg:max-w-sm flex-shrink-0 lg:sticky lg:top-24">
               {/* "Cuộc tranh luận": "Vứt" (Remove) dark: */}
               <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 flex flex-col items-center">
                 <div className="w-40 h-40 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-7xl font-bold shadow-lg border-4 border-white">
