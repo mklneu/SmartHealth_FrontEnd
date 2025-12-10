@@ -18,7 +18,8 @@ import {
   FaMapMarkerAlt,
   FaPhone,
   FaUser, // Thêm icon cho giao diện đẹp hơn
-  FaStethoscope, // Thêm icon
+  FaStethoscope,
+  FaFileAlt, // Thêm icon
 } from "react-icons/fa";
 import {
   formatAppointmentDate,
@@ -36,7 +37,13 @@ interface SimplePatient {
 }
 
 const MedicalRecordsPage = () => {
-  const { userRole, doctorProfile, patientProfile } = useAuth();
+  const {
+    userRole,
+    doctorProfile,
+    patientProfile,
+    STORAGE_BASE_URL,
+    folderName,
+  } = useAuth();
 
   const [patients, setPatients] = useState<SimplePatient[]>([]);
   const [loadingPatients, setLoadingPatients] = useState(true);
@@ -160,7 +167,7 @@ const MedicalRecordsPage = () => {
         const element = accordionRefs.current[appointmentId];
         if (element) {
           const topPos =
-            element.getBoundingClientRect().top + window.scrollY - 75; // Margin top an toàn
+            element.getBoundingClientRect().top + window.scrollY - 75;
           window.scrollTo({
             top: topPos,
             behavior: "smooth",
@@ -389,6 +396,19 @@ const MedicalRecordsPage = () => {
                                         </tbody>
                                       </table>
                                     </div>
+                                    {test.attachmentFile && (
+                                      <div className="p-3 border-t border-gray-100 bg-gray-50 ">
+                                        <a
+                                          href={`${STORAGE_BASE_URL}/${folderName}/${test?.attachmentFile}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="inline-flex items-baseline text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                                        >
+                                          <FaFileAlt className="mr-1 h-3 w-3" />
+                                          Xem file đính kèm
+                                        </a>
+                                      </div>
+                                    )}
                                   </div>
                                 ))}
                               </div>
@@ -796,6 +816,19 @@ const MedicalRecordsPage = () => {
                                               </tbody>
                                             </table>
                                           </div>
+                                          {test.attachmentFile && (
+                                            <div className="p-3 border-t border-gray-100 bg-gray-50 ">
+                                              <a
+                                                href={`${STORAGE_BASE_URL}/${folderName}/${test?.attachmentFile}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-baseline text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                                              >
+                                                <FaFileAlt className="mr-1 h-3 w-3" />
+                                                Xem file đính kèm
+                                              </a>
+                                            </div>
+                                          )}
                                         </div>
                                       ))}
                                     </div>

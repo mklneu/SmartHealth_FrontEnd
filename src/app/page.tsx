@@ -250,15 +250,6 @@ export default function Home() {
                   >
                     Dashboard
                   </Link>
-                  <Link
-                    href="/booking"
-                    className="px-6 py-3 z-10
-                     bg-transparent cursor-pointer duration-300
-                     text-white font-medium rounded-lg 
-                     border border-blue-400 hover:bg-white/10"
-                  >
-                    Đặt lịch khám
-                  </Link>
                 </div>
               ) : userRole === "doctor" ? null : userRole === "patient" ? (
                 <div className="flex flex-wrap gap-4 ">

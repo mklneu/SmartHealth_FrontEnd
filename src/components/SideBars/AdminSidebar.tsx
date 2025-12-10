@@ -38,7 +38,7 @@ const adminLinks = [
   },
   {
     href: "/admin/staffs",
-    label: "Nhân viên",
+    label: "Xét nghiệm viên",
     icon: <FaUserNurse />,
   },
   {
